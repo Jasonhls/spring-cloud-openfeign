@@ -143,6 +143,11 @@ class FeignClientsRegistrar
 		this.resourceLoader = resourceLoader;
 	}
 
+	/**
+	 * 注册被注解@Feign注释的类的beanDefinition
+	 * @param metadata
+	 * @param registry
+	 */
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata,
 			BeanDefinitionRegistry registry) {
@@ -206,6 +211,7 @@ class FeignClientsRegistrar
 				registerClientConfiguration(registry, name,
 						attributes.get("configuration"));
 
+				//注册被@Feign注释的类的beanDefinition的核心逻辑
 				registerFeignClient(registry, annotationMetadata, attributes);
 			}
 		}
@@ -219,6 +225,7 @@ class FeignClientsRegistrar
 				? (ConfigurableBeanFactory) registry : null;
 		String contextId = getContextId(beanFactory, attributes);
 		String name = getName(attributes);
+		//被@Feign注解注释的类生成的bean是FeignClientFactoryBean的getObject方法返回的对象
 		FeignClientFactoryBean factoryBean = new FeignClientFactoryBean();
 		factoryBean.setBeanFactory(beanFactory);
 		factoryBean.setName(name);

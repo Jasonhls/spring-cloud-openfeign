@@ -54,6 +54,10 @@ class HystrixTargeter implements Targeter {
 					fallbackFactory);
 		}
 
+		/**
+		 * 这里的feign为HystrixFeign的内部类Builder
+		 * 这里直接会调用Feign.Builder类的target方法
+		 */
 		return feign.target(target);
 	}
 

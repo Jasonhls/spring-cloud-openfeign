@@ -81,6 +81,13 @@ public class FeignLoadBalancer extends
 		followRedirects = ribbon.isFollowRedirects();
 	}
 
+	/**
+	 * 实现了ribbon中的抽象类AbstractLoadBalancerAwareClient
+	 * @param request
+	 * @param configOverride
+	 * @return
+	 * @throws IOException
+	 */
 	@Override
 	public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride)
 			throws IOException {
@@ -95,6 +102,7 @@ public class FeignLoadBalancer extends
 			options = new Request.Options(connectTimeout, TimeUnit.MILLISECONDS,
 					readTimeout, TimeUnit.MILLISECONDS, followRedirects);
 		}
+		//这里的request.client()返回的是Client的内部类Default，因此走Client类中的内部类Default的execute方法
 		Response response = request.client().execute(request.toRequest(), options);
 		return new RibbonResponse(request.getUri(), response);
 	}

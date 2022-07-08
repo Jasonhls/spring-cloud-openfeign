@@ -312,6 +312,10 @@ public class FeignClientFactoryBean implements FactoryBean<Object>, Initializing
 	}
 
 	protected <T> T get(FeignContext context, Class<T> type) {
+		/**
+		 * 这里会去spring容器中寻找Targeter类型的bean，在FeignAutoConfiguration配置文件中会自动向spring容器中注入的Targeter类型的bean对象为HystrixTargeter对象
+		 * 因此这里会返回HystrixTargeter对象
+		 */
 		T instance = context.getInstance(contextId, type);
 		if (instance == null) {
 			throw new IllegalStateException(
@@ -345,9 +349,15 @@ public class FeignClientFactoryBean implements FactoryBean<Object>, Initializing
 
 	protected <T> T loadBalance(Feign.Builder builder, FeignContext context,
 			HardCodedTarget<T> target) {
+		/**
+		 * 从FeignContext中获取Client类型的Bean对象，这里返回的是LoadBalancerFeignClient对象
+		 */
 		Client client = getOptional(context, Client.class);
 		if (client != null) {
 			builder.client(client);
+			/**
+			 * 这里会返回HystrixTargeter对象
+			 */
 			Targeter targeter = get(context, Targeter.class);
 			return targeter.target(this, builder, context, target);
 		}
@@ -356,6 +366,10 @@ public class FeignClientFactoryBean implements FactoryBean<Object>, Initializing
 				"No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-netflix-ribbon or spring-cloud-starter-loadbalancer?");
 	}
 
+	/**
+	 * 返回被@FeignClient注解注释的类的bean实例对象
+	 * @return
+	 */
 	@Override
 	public Object getObject() {
 		return getTarget();
@@ -370,6 +384,10 @@ public class FeignClientFactoryBean implements FactoryBean<Object>, Initializing
 		FeignContext context = beanFactory != null
 				? beanFactory.getBean(FeignContext.class)
 				: applicationContext.getBean(FeignContext.class);
+		/**
+		 * 这里是从FeignContext中获取Feign.Builder类型，目前只有HystrixFeign的内部类Builder实现了Feign.Builder，
+		 * 因此这里返回的就是HystrixFeign的内部类Builder
+		 */
 		Feign.Builder builder = feign(context);
 
 		if (!StringUtils.hasText(url)) {
@@ -385,6 +403,7 @@ public class FeignClientFactoryBean implements FactoryBean<Object>, Initializing
 				url = name;
 			}
 			url += cleanPath();
+			//生成代理对象
 			return (T) loadBalance(builder, context,
 					new HardCodedTarget<>(type, name, url));
 		}

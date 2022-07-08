@@ -70,12 +70,21 @@ public class LoadBalancerFeignClient implements Client {
 		return URI.create(buffer.toString());
 	}
 
+	/**
+	 * feign请求过程中，会执行SynchronousMethodHandler的invoke方法，然后执行到它的executeAndDecode方法，
+	 * 该方法会执行this.client.execute方法，而LoadBalanceFeignClient实现了Client接口，就会执行下面的execute方法
+	 * @param request
+	 * @param options
+	 * @return
+	 * @throws IOException
+	 */
 	@Override
 	public Response execute(Request request, Request.Options options) throws IOException {
 		try {
 			URI asUri = URI.create(request.url());
 			String clientName = asUri.getHost();
 			URI uriWithoutHost = cleanUrl(request.url(), clientName);
+			//这里把LoadBalancerFeignClient的delegate属性（即Client的内部类Default）传给ribbonRequest对象的属性client
 			FeignLoadBalancer.RibbonRequest ribbonRequest = new FeignLoadBalancer.RibbonRequest(
 					this.delegate, request, uriWithoutHost);
 

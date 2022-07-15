@@ -35,6 +35,8 @@ class DefaultFeignLoadBalancedConfiguration {
 			SpringClientFactory clientFactory) {
 		/**
 		 * 这里创建LoadBalancerFeignClient对象，传入的client是Client的内部类Default
+		 *
+		 * 这里的cachingFactory为CachingSpringLoadBalancerFactory对象
 		 */
 		return new LoadBalancerFeignClient(new Client.Default(null, null), cachingFactory,
 				clientFactory);

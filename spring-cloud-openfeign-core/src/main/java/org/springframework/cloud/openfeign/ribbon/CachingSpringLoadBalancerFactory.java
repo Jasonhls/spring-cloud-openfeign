@@ -53,11 +53,13 @@ public class CachingSpringLoadBalancerFactory {
 	}
 
 	public FeignLoadBalancer create(String clientName) {
+		//根据clientName从缓存中取，如果有，就直接返回，如果没有就根据相关配置创建一个，并放入缓存中
 		FeignLoadBalancer client = this.cache.get(clientName);
 		if (client != null) {
 			return client;
 		}
 		IClientConfig config = this.factory.getClientConfig(clientName);
+		//这里返回的是ZoneAwareLoadBalancer对象
 		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
 		ServerIntrospector serverIntrospector = this.factory.getInstance(clientName,
 				ServerIntrospector.class);
@@ -65,6 +67,7 @@ public class CachingSpringLoadBalancerFactory {
 				? new RetryableFeignLoadBalancer(lb, config, serverIntrospector,
 						this.loadBalancedRetryFactory)
 				: new FeignLoadBalancer(lb, config, serverIntrospector);
+		//以clientName为key，FeignLoadBalancer为value，存入缓存中
 		this.cache.put(clientName, client);
 		return client;
 	}

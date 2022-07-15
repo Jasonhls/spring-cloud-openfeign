@@ -102,7 +102,10 @@ public class FeignLoadBalancer extends
 			options = new Request.Options(connectTimeout, TimeUnit.MILLISECONDS,
 					readTimeout, TimeUnit.MILLISECONDS, followRedirects);
 		}
-		//这里的request.client()返回的是Client的内部类Default，因此走Client类中的内部类Default的execute方法
+		/**
+		 * 这里的request.client()返回的是Client的内部类Default，因此走Client类中的内部类Default的execute方法
+		 * 然后通过HttpURLConnection发送请求
+		 */
 		Response response = request.client().execute(request.toRequest(), options);
 		return new RibbonResponse(request.getUri(), response);
 	}

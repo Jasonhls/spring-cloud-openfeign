@@ -89,8 +89,13 @@ public class LoadBalancerFeignClient implements Client {
 					this.delegate, request, uriWithoutHost);
 
 			IClientConfig requestConfig = getClientConfig(options, clientName);
-			//通过负载均衡客户端，执行负载均衡处理
-			//首先执行父类AbstractLoadBalancerAwareClient的executeWithLoadBalancer方法
+			/**
+			 * 通过负载均衡客户端，执行负载均衡处理的核心逻辑
+			 * lbClient(clientName)返回的是一个FeignLoadBalancer对象，该对象是LoadBalancerContext的子类，
+			 * FeignLoadBalancer的父类属性ILoadBalancer为ZoneAwareLoadBalancer对象
+			 *
+			 * 这里会执行父类AbstractLoadBalancerAwareClient的executeWithLoadBalancer方法
+			 */
 			return lbClient(clientName)
 					.executeWithLoadBalancer(ribbonRequest, requestConfig).toResponse();
 		}
